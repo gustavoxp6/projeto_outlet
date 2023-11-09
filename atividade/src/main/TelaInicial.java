@@ -420,14 +420,16 @@ public class TelaInicial extends JFrame {
 				tf_NomeCliente.setText(cliente.getNome());
 				tf_EmailCliente.setText(cliente.getEmail());
 				tft_TelefoneCliente.setText(cliente.getTelefone());
-    // Suponha que cliente.getDatanascimento() retorna uma string no formato "dd/MM/yyyy"
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	try {
-		Date data = sdf.parse(cliente.getDatanascimento());
-		dt_DataNascimentoCliente.setDateFormatString(sdf.format(data));
-	} catch (ParseException erro) {
-		erro.printStackTrace();
-	}
+				SimpleDateFormat formatorecebido = new SimpleDateFormat("yyyy-MM-dd");
+				SimpleDateFormat formatoexibicao = new SimpleDateFormat("d'de'MMM'de'y");
+				Date dataformatada = null;
+				try {
+					dataformatada = formatorecebido.parse(cliente.getDatanascimento());
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+				formatoexibicao.format(dataformatada);
+				dt_DataNascimentoCliente.setDate(dataformatada);
 				endereco.setCliente_cpf(ftf_CPFCliente.getText());
 				enderecodao.buscaEnderecosDoCLiente(endereco);
 				tf_LogradouroCliente.setText(endereco.getLogradouro());
@@ -972,14 +974,16 @@ public void ConsultaPedido() {
 		table_Insere_pedido.setBackground(new Color(255,255,255)); // define a cor de fundo do JTable
 		table_Insere_pedido.setBounds(0, 0, 500, 475);
 		DefaultTableModel model = (DefaultTableModel) table_Insere_pedido.getModel(); //
+		model.addColumn("Codigo do produto");
 		model.addColumn("Nome do produto"); // adiciona a coluna 0
 		model.addColumn("Descrição"); // adiciona a coluna 1
 		model.addColumn("Valor"); // adiciona a coluna 2
 		model.addColumn("Subtotal"); // adiciona a coluna 3
-		table_Insere_pedido.getColumnModel().getColumn(0).setPreferredWidth(150); // define a largura da coluna 0
-		table_Insere_pedido.getColumnModel().getColumn(1).setPreferredWidth(150); // define a largura da coluna 1
-		table_Insere_pedido.getColumnModel().getColumn(2).setPreferredWidth(80); // define a largura da coluna 2
-		table_Insere_pedido.getColumnModel().getColumn(3).setPreferredWidth(150); // define a largura da coluna 3
+		table_Insere_pedido.getColumnModel().getColumn(0).setPreferredWidth(150);
+		table_Insere_pedido.getColumnModel().getColumn(1).setPreferredWidth(150); // define a largura da coluna 0
+		table_Insere_pedido.getColumnModel().getColumn(2).setPreferredWidth(150); // define a largura da coluna 1
+		table_Insere_pedido.getColumnModel().getColumn(3).setPreferredWidth(80); // define a largura da coluna 2
+		table_Insere_pedido.getColumnModel().getColumn(4).setPreferredWidth(150); // define a largura da coluna 3
 		
 		
 		JScrollPane ScrollPane_Insere_pedido = new JScrollPane(table_Insere_pedido);
@@ -1045,8 +1049,17 @@ public void ConsultaPedido() {
 			public void actionPerformed(ActionEvent e) {
 				pedido.setId(tf_Id.getText());
 				PedidoDAO.buscaClienteDoPedido(pedido);
+				SimpleDateFormat formatorecebido = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				SimpleDateFormat formatoexibicao = new SimpleDateFormat("d'de'MMM'de'y");
+				Date dataformatada = null;
+				try {
+					dataformatada = formatorecebido.parse(pedido.getData());
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+				formatoexibicao.format(dataformatada);
 				tf_Cpf.setText(pedido.getCliente_cpf());
-				dt_data.setDateFormatString(pedido.getData());
+				dt_data.setDate(dataformatada);
 			}
 		});
 		btn_Buscar_pedido.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -1105,6 +1118,7 @@ public void ConsultaPedido() {
 		btn_Inserir.setBounds(10, 400, 120, 23);
 		btn_Inserir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				try {
 			
 					CONEXAO novaConexao = new CONEXAO();
@@ -1119,13 +1133,14 @@ public void ConsultaPedido() {
 					String query = "";
 					
 					if (!id_produto.equals("")) {
-					query = "SELECT produto.preco, produto.marca, produto.descricao from produto where produto.cod ='"+id_produto+"' ";
+					query = "SELECT produto.cod, produto.preco, produto.marca, produto.descricao from produto where produto.cod ='"+id_produto+"' ";
 					System.out.println("Query executada");
 					}
 		
 					ResultSet rs = stmt.executeQuery(query);
 					
 					while (rs.next()) {
+					String cod = ( rs.getString("produto.cod") );
 					String nome = ( rs.getString("produto.marca") );
 					String descricao = (rs.getString("produto.descricao"));
 					Double valor = ( rs.getDouble("produto.preco"));
@@ -1134,7 +1149,7 @@ public void ConsultaPedido() {
 					boolean produtoExistente = false;
 					int rowIndex = -1;
 					for (int i = 0; i < model.getRowCount(); i++) {
-						if (nome.equals(model.getValueAt(i, 0))) {
+						if (nome.equals(model.getValueAt(i, 1))) {
 							produtoExistente = true;
 							rowIndex = i;
 							break;
@@ -1143,15 +1158,15 @@ public void ConsultaPedido() {
 			
 					// Se o produto já está na lista, atualiza a quantidade e o subtotal
 					if (produtoExistente) {
-						Double quantidadeExistente = Double.parseDouble(model.getValueAt(rowIndex, 2).toString());
-						Double subtotalExistente = Double.parseDouble(model.getValueAt(rowIndex, 3).toString());
+						Double quantidadeExistente = Double.parseDouble(model.getValueAt(rowIndex, 3).toString());
+						Double subtotalExistente = Double.parseDouble(model.getValueAt(rowIndex, 4).toString());
 						quantidadeExistente += Double.parseDouble(quantidade);
 						subtotalExistente += subtotal;
-						model.setValueAt(quantidadeExistente, rowIndex, 2);
-						model.setValueAt(subtotalExistente, rowIndex, 3);
+						model.setValueAt(quantidadeExistente, rowIndex, 3);
+						model.setValueAt(subtotalExistente, rowIndex, 4);
 					} else {
 						// Se o produto não está na lista, adiciona uma nova linha na tabela
-						model.addRow(new Object[]{nome, descricao, Double.parseDouble(quantidade), subtotal});
+						model.addRow(new Object[]{cod, nome, descricao,valor, subtotal});
 					}
 					
 				}
@@ -1167,7 +1182,20 @@ public void ConsultaPedido() {
 		btn_Excluir_Produto.setBounds(135, 400, 90, 23);
 		btn_Excluir_Produto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				String codigoexcluir = tf_Codigo_produto.getText();
+					int rowIndex = -1;
+					for (int i = 0; i < model.getRowCount(); i++) {
+						if (codigoexcluir.equals(model.getValueAt(i, 0))) {
+							rowIndex = i;
+							break;
+						}
+					}
+					if(rowIndex!=-1){
+						model.removeRow(rowIndex);	
+
+					}else{
+						JOptionPane.showMessageDialog(null,"Produto não encontrado na tabela");
+					}
 			}
 		});
 		btn_Excluir_Produto.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -1177,6 +1205,71 @@ public void ConsultaPedido() {
 		btn_Alterar_Produto.setBounds(230, 400, 90, 23);
 		btn_Alterar_Produto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String codalterar = tf_Codigo_produto.getText();
+				int rowIndex = -1;
+					for (int i = 0; i < model.getRowCount(); i++) {
+						if (codalterar.equals(model.getValueAt(i, 0))) {
+							rowIndex = i;
+							break;
+						}
+					}
+					if(rowIndex!= -1){
+						model.removeRow(rowIndex);
+						try {
+			
+							CONEXAO novaConexao = new CONEXAO();
+							Connection conectar = novaConexao.getConexao();
+							Connection conn = conectar;
+						   
+							// Procedimentos para obter os dados de uma tabela
+							java.sql.Statement stmt = conn.createStatement();
+				
+							String quantidade = tf_Quantidade.getText();
+							String id_produto = tf_Codigo_produto.getText();
+							String query = "";
+							
+							if (!id_produto.equals("")) {
+							query = "SELECT produto.cod, produto.preco, produto.marca, produto.descricao from produto where produto.cod ='"+codalterar+"' ";
+							System.out.println("Query executada");
+							}
+				
+							ResultSet rs = stmt.executeQuery(query);
+							
+							while (rs.next()) {
+							String cod = ( rs.getString("produto.cod") );
+							String nome = ( rs.getString("produto.marca") );
+							String descricao = (rs.getString("produto.descricao"));
+							Double valor = ( rs.getDouble("produto.preco"));
+							Double subtotal = valor * Double.parseDouble(quantidade);
+							System.out.println(subtotal);
+							boolean produtoExistente = false;
+							int rowindex1 = -1;
+							for (int i = 0; i < model.getRowCount(); i++) {
+								if (nome.equals(model.getValueAt(i, 1))) {
+									produtoExistente = true;
+									rowindex1 = i;
+									break;
+								}
+							}
+					
+							// Se o produto já está na lista, atualiza a quantidade e o subtotal
+							if (produtoExistente) {
+								Double quantidadeExistente = Double.parseDouble(model.getValueAt(rowindex1, 3).toString());
+								Double subtotalExistente = Double.parseDouble(model.getValueAt(rowindex1, 4).toString());
+								quantidadeExistente += Double.parseDouble(quantidade);
+								subtotalExistente += subtotal;
+								model.setValueAt(quantidadeExistente, rowindex1, 3);
+								model.setValueAt(subtotalExistente, rowindex1, 4);
+							} else {
+								// Se o produto não está na lista, adiciona uma nova linha na tabela
+								model.addRow(new Object[]{cod, nome, descricao, valor, subtotal});
+							}
+							
+						}
+							} catch (SQLException erro_consulta_cliente) {
+							JOptionPane.showMessageDialog(null,"Erro inserir produto\n"+ erro_consulta_cliente.getMessage());
+							}
+					}
 				
 			}
 		});
@@ -1185,19 +1278,56 @@ public void ConsultaPedido() {
 
 		
 		
-		JButton btn_Confirmar = new JButton("Confirmar");
-		btn_Confirmar.setBounds(75, 579, 100, 23);
-		btn_Confirmar.addActionListener(new ActionListener() {
+		JButton btn_Concluir_pedido = new JButton("Concluir pedido");
+		btn_Concluir_pedido.setBounds(500, 579, 150, 23);
+		btn_Concluir_pedido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Double subtotalExistente=0.0;
+				int codproduto=0;
+				int rowindex = -1;
+				for (int i = 0; i < model.getRowCount(); i++) {
+						rowindex = i;
+						subtotalExistente += Double.parseDouble(model.getValueAt(rowindex, 4).toString());
+						codproduto += Integer.parseInt(model.getValueAt(rowindex, 0).toString());
+							
+				}
+				System.out.println(1);
+				model.addRow(new Object[]{"VALOR TOTAL ", "", "",codproduto, subtotalExistente});
+				DefaultTableModel model = (DefaultTableModel) table_Insere_pedido.getModel();
 
+				int rowCount = model.getRowCount();
+
+				for (int i = 0; i < rowCount; i++) {
+   				 Object[] rowData = new Object[model.getColumnCount()];
+
+   				 for (int j = 0; j < model.getColumnCount(); j++) {
+        		rowData[j] = model.getValueAt(i, j);
+    					}
+					}
+					 model = (DefaultTableModel) table_Insere_pedido.getModel();
+
+rowCount = model.getRowCount();
+StringBuilder message = new StringBuilder();
+
+for (int i = 0; i < rowCount; i++) {
+    Object[] rowData = new Object[model.getColumnCount()];
+    for (int j = 0; j < model.getColumnCount(); j++) {
+        rowData[j] = model.getValueAt(i, j);
+        message.append(rowData[j]).append("\t"); // Assuming tab-separated values
+    }
+    message.append("\n"); // Newline to separate rows
+}
+
+JOptionPane.showMessageDialog(null, message.toString());
 			}
+			
 		});
-		btn_Confirmar.setFont(new Font("Tahoma", Font.BOLD, 11));
-		Pane_Pedido.add(btn_Confirmar);
+		btn_Concluir_pedido.setFont(new Font("Tahoma", Font.BOLD, 11));
+		Pane_Pedido.add(btn_Concluir_pedido);
 		
-		JButton btn_Excluir = new JButton("Excluir");
-		btn_Excluir.setBounds(205, 579, 100, 23);
-		btn_Excluir.addActionListener(new ActionListener() {
+		JButton btn_Cancelar_pedido = new JButton("Cancelar pedido");
+		btn_Cancelar_pedido.setBounds(680, 579, 150, 23);
+		btn_Cancelar_pedido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pedido.setId(tf_Id.getText());
 				PedidoDAO.deleta(pedido);
@@ -1210,46 +1340,9 @@ public void ConsultaPedido() {
 				
 			}
 		});
-		btn_Excluir.setFont(new Font("Tahoma", Font.BOLD, 11));
-		Pane_Pedido.add(btn_Excluir);
-		
-		JButton btn_Buscar = new JButton("Buscar");
-		btn_Buscar.setBounds(465, 579, 100, 23);
-		btn_Buscar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-        itempedido.setPedido_id(tf_Id.getText());
-		pedido.setId(tf_Id.getText());
-		PedidoDAO.buscaClienteDoPedido(pedido);
-        ItempedidoDAO.buscaItensDoPedido(itempedido);
-        tf_Id.setText(itempedido.getPedido_id()); 
-		tf_Codigo_produto.setText(itempedido.getProduto_cod());
-		tf_Quantidade.setText(Integer.toString(itempedido.getQuantidade()));
-		tf_Cpf.setText(pedido.getCliente_cpf());
-
-		SimpleDateFormat converterdata = new SimpleDateFormat("d'de'MMM'de'y");
-        dt_data.setDateFormatString(converterdata.format(pedido.getData()));
-			}
-		});
-		btn_Buscar.setFont(new Font("Tahoma", Font.BOLD, 11));
-		Pane_Pedido.add(btn_Buscar);
-		
-		JButton btn_Atualizar = new JButton("Atualizar");
-		btn_Atualizar.setBounds(335, 579, 100, 23);
-		btn_Atualizar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				itempedido.setPedido_id(tf_Id.getText());
-				itempedido.setProduto_cod(tf_Codigo_produto.getText());
-				itempedido.setQuantidade(Integer.parseInt(tf_Quantidade.getText()));
-				ItempedidoDAO.atualiza(itempedido);
-			}
+		btn_Cancelar_pedido.setFont(new Font("Tahoma", Font.BOLD, 11));
+		Pane_Pedido.add(btn_Cancelar_pedido);
 			
-		});
-		btn_Atualizar.setFont(new Font("Tahoma", Font.BOLD, 11));
-		Pane_Pedido.add(btn_Atualizar);
-
-		
-		
 		}
 			
 	
