@@ -960,7 +960,7 @@ public void ConsultaPedido() {
 		PauinelConsultapedido.add(btn_Buusca_Pedido);
 	}
 	
-	static boolean acc1 = false;
+	
 	public void TELAPEDIDO() {
 		JPanel Pane_Pedido = new JPanel();
 		layeredPane.setLayer(Pane_Pedido, 0);
@@ -1008,7 +1008,7 @@ public void ConsultaPedido() {
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 11));
 		Pane_Pedido.add(lblNewLabel_1);
 		
-		JTextField tf_Cpf = new JTextField();
+		JFormattedTextField tf_Cpf = new JFormattedTextField(Mascara("###.###.###-##"));
 		tf_Cpf.setBounds(107, 183, 129, 20);
 		Pane_Pedido.add(tf_Cpf);
 		tf_Cpf.setColumns(10);
@@ -1074,11 +1074,7 @@ public void ConsultaPedido() {
 		btn_Atualizar_pedido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pedido.setId(tf_Id.getText());
-				PedidoDAO.atualiza(pedido);
-				tf_Cpf.setText("");
-				tf_Id.setText("");
-				dt_data.setToolTipText("");
-				
+				PedidoDAO.atualiza(pedido);								
 			}
 		});
 		btn_Atualizar_pedido.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -1121,9 +1117,12 @@ public void ConsultaPedido() {
 		btn_Inserir = new JButton("Inserir produto");
 		btn_Inserir.setBounds(10, 400, 120, 23);
 		btn_Inserir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-					
-				if(acc1 == false ){
+			public void actionPerformed(ActionEvent e) {					
+				if(tf_Id.getText().equals("")
+				|| tf_Cpf.getText().equals("")
+				|| dt_data.getAccessibleContext().equals("")){
+					JOptionPane.showMessageDialog(null, "Preencha todos os campos para fazer o pedido");
+				}else{
 				try {
 			
 					CONEXAO novaConexao = new CONEXAO();
@@ -1177,12 +1176,6 @@ public void ConsultaPedido() {
 					} catch (SQLException erro_consulta_cliente) {
 					JOptionPane.showMessageDialog(null,"Erro inserir produto\n"+ erro_consulta_cliente.getMessage());
 					}
-				}else{
-					DefaultTableModel model = (DefaultTableModel) table_Insere_pedido.getModel();
-					model.setRowCount(0);
-					JOptionPane.showMessageDialog(null, "Faça um novo pedido");
-					acc1 = false;
-
 				}
 			}
 		});
@@ -1308,7 +1301,7 @@ public void ConsultaPedido() {
 					tf_Codigo_produto.setText("");
 					tf_Quantidade.setText("");
 				}
-				acc1 = true;
+				
 			}
 		});
 		btn_Concluir_pedido.setFont(new Font("Tahoma", Font.BOLD, 11));
