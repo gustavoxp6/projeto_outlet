@@ -1,0 +1,50 @@
+-- Active: 1695351347379@@127.0.0.1@3306@getão_de_loja
+DROP PROCEDURE calculo_total;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `calculo_total`(
+  IN data date,
+  IN saldo_dia_anterior DECIMAL(10, 2),
+  IN dinheiro DECIMAL(10, 2),
+  IN cartao DECIMAL(10, 2),
+  IN outras_entradas DECIMAL(10, 2),
+  IN fornecedores DECIMAL(10, 2),
+  IN imposto DECIMAL(10, 2),
+  IN contas DECIMAL(10, 2),
+  IN manutencao DECIMAL(10, 2),
+  IN parcela_de_equipamento DECIMAL(10, 2),
+  IN despesa_bancaria DECIMAL(10, 2),
+  IN salario_funcionario DECIMAL(10, 2),
+  IN prolabore DECIMAL(10, 2),
+  IN outras_saidas DECIMAL(10, 2)
+)
+BEGIN
+  -- Insere os dados na tabela
+  INSERT INTO fluxo_de_caixa(
+    data, saldo_dia_anterior, dinheiro, cartao, outras_entradas,
+    fornecedores, imposto, contas, manutencao, parcela_de_equipamento,
+    despesa_bancaria, salario_funcionario, prolabore, outras_saidas
+  ) VALUES (
+    data, saldo_dia_anterior, dinheiro, cartao, outras_entradas,
+    fornecedores, imposto, contas, manutencao, parcela_de_equipamento,
+    despesa_bancaria, salario_funcionario, prolabore, outras_saidas
+  );
+  -- Obtém o código da linha inserida
+  SET @cod = LAST_INSERT_ID();
+  -- Atualiza o total de saídas
+  UPDATE fluxo_de_caixa
+  SET total_de_saidas = fornecedores + imposto + contas + manutencao +
+                        parcela_de_equipamento + despesa_bancaria +
+                        salario_funcionario + prolabore + outras_saidas
+  WHERE cod = @cod;
+  -- Atualiza o total de entradas
+  UPDATE fluxo_de_caixa
+  SET total_de_entradas = dinheiro + cartao + outras_entradas
+  WHERE cod = @cod;
+  -- Atualiza o saldo do dia
+  UPDATE fluxo_de_caixa
+  SET saldo_do_dia = total_de_entradas - total_de_saidas
+  WHERE cod = @cod;
+  -- Atualiza o saldo atual
+  UPDATE fluxo_de_caixa
+  SET saldo_atual = saldo_do_dia + saldo_dia_anterior
+  WHERE cod = @cod;
+END

@@ -1,0 +1,23 @@
+CREATE TABLE
+    `fluxo_de_caixa` (
+        `cod` bigint(20) NOT NULL AUTO_INCREMENT,
+        `data` date NOT NULL,
+        `saldo_dia_anterior` decimal(10, 2) NOT NULL,
+        `dinheiro` decimal(10, 2) NOT NULL,
+        `cartao` decimal(10, 2) NOT NULL,
+        `outras_entradas` decimal(10, 2) DEFAULT NULL,
+        `fornecedores` decimal(10, 2) NOT NULL,
+        `imposto` decimal(10, 2) NOT NULL,
+        `contas` decimal(10, 2) NOT NULL,
+        `manutencao` decimal(10, 2) DEFAULT NULL,
+        `parcela_de_equipamento` decimal(10, 2) DEFAULT NULL,
+        `despesa_bancaria` decimal(10, 2) DEFAULT NULL,
+        `salario_funcionario` decimal(10, 2) NOT NULL,
+        `prolabore` decimal(10, 2) NOT NULL,
+        `outras_saidas` decimal(10, 2) DEFAULT NULL,
+        `total_de_saidas` decimal(10, 2) DEFAULT NULL,
+        `total_de_entradas` decimal(10, 2) DEFAULT NULL,
+        `saldo_do_dia` decimal(10, 2) DEFAULT NULL,
+        `saldo_atual` decimal(10, 2) DEFAULT NULL,
+        PRIMARY KEY (`cod`)
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci
