@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.Color;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -13,10 +14,17 @@ import javax.swing.JButton;
 import java.awt.Font;
 import javax.swing.ImageIcon;
 import javax.swing.border.MatteBorder;
+
+import com.toedter.calendar.JDateChooser;
+
 import javax.swing.UIManager;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import dao.FLUXODECAIXADAO;
 import entity.FLUXODECAIXA;
 public class TELAFLUXODECAIXA extends JFrame {
@@ -39,7 +47,6 @@ public class TELAFLUXODECAIXA extends JFrame {
 	private JTextField tf_Total_saidas;
 	private JTextField tf_Saldo_dia;
 	private JTextField tf_Saldo_Atual;
-	private JTextField tf_Data;
 	private JTextField tf_Cod;
 	private JTextField textField;
 	private JTextField tf_Total_entradas;
@@ -175,44 +182,53 @@ public class TELAFLUXODECAIXA extends JFrame {
 		tf_prolabore.setBounds(185, 336, 96, 19);
 		contentPane.add(tf_prolabore);
 		tf_prolabore.setColumns(10);
+
+		JLabel lblNewLabel_16 = new JLabel("Data");
+		lblNewLabel_16.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblNewLabel_16.setForeground(Color.white);
+		lblNewLabel_16.setBounds(64, 57, 45, 13);
+		contentPane.add(lblNewLabel_16);
+
+		JDateChooser dt_Data = new JDateChooser();
+		dt_Data.setBounds(119, 56, 135, 19);
+		contentPane.add(dt_Data);
 		
 		JButton btn_Calculo = new JButton("Calcular");
 		btn_Calculo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Primeiro, obtenha os valores dos campos de texto
-String data = tf_Data.getText();
-int saldo_anterior = tf_Saldo_anterior.getText().isEmpty() ? 0 : Integer.parseInt(tf_Saldo_anterior.getText());
-int dinheiro = tf_Dinheiro.getText().isEmpty() ? 0 : Integer.parseInt(tf_Dinheiro.getText());
-int cartao = tf_Cartao.getText().isEmpty() ? 0 : Integer.parseInt(tf_Cartao.getText());
-int outras_entradas = tf_Outras_entradas.getText().isEmpty() ? 0 : Integer.parseInt(tf_Outras_entradas.getText());
-int fornecedores = tf_Fornecedores.getText().isEmpty() ? 0 : Integer.parseInt(tf_Fornecedores.getText());
-int impostos = tf_Impostos.getText().isEmpty() ? 0 : Integer.parseInt(tf_Impostos.getText());
-int contas = tf_Contas.getText().isEmpty() ? 0 : Integer.parseInt(tf_Contas.getText());
-int manutencoes = tf_Manutencoes.getText().isEmpty() ? 0 : Integer.parseInt(tf_Manutencoes.getText());
-int parcela_equipamento = tf_Parcela_equipamento.getText().isEmpty() ? 0 : Integer.parseInt(tf_Parcela_equipamento.getText());
-int despesa_bancaria = tf_Despesa_bancaria.getText().isEmpty() ? 0 : Integer.parseInt(tf_Despesa_bancaria.getText());
-int salario_funcionario = tf_Salario_funcionario.getText().isEmpty() ? 0 : Integer.parseInt(tf_Salario_funcionario.getText());
-int prolabore = tf_prolabore.getText().isEmpty() ? 0 : Integer.parseInt(tf_prolabore.getText());
-int outras_saidas = tf_Outras_saidas.getText().isEmpty() ? 0 : Integer.parseInt(tf_Outras_saidas.getText());
+			int saldo_anterior = tf_Saldo_anterior.getText().isEmpty() ? 0 : Integer.parseInt(tf_Saldo_anterior.getText());
+			int dinheiro = tf_Dinheiro.getText().isEmpty() ? 0 : Integer.parseInt(tf_Dinheiro.getText());
+			int cartao = tf_Cartao.getText().isEmpty() ? 0 : Integer.parseInt(tf_Cartao.getText());
+			int outras_entradas = tf_Outras_entradas.getText().isEmpty() ? 0 : Integer.parseInt(tf_Outras_entradas.getText());
+			int fornecedores = tf_Fornecedores.getText().isEmpty() ? 0 : Integer.parseInt(tf_Fornecedores.getText());
+			int impostos = tf_Impostos.getText().isEmpty() ? 0 : Integer.parseInt(tf_Impostos.getText());
+			int contas = tf_Contas.getText().isEmpty() ? 0 : Integer.parseInt(tf_Contas.getText());
+			int manutencoes = tf_Manutencoes.getText().isEmpty() ? 0 : Integer.parseInt(tf_Manutencoes.getText());
+			int parcela_equipamento = tf_Parcela_equipamento.getText().isEmpty() ? 0 : Integer.parseInt(tf_Parcela_equipamento.getText());
+			int despesa_bancaria = tf_Despesa_bancaria.getText().isEmpty() ? 0 : Integer.parseInt(tf_Despesa_bancaria.getText());
+			int salario_funcionario = tf_Salario_funcionario.getText().isEmpty() ? 0 : Integer.parseInt(tf_Salario_funcionario.getText());
+			int prolabore = tf_prolabore.getText().isEmpty() ? 0 : Integer.parseInt(tf_prolabore.getText());
+			int outras_saidas = tf_Outras_saidas.getText().isEmpty() ? 0 : Integer.parseInt(tf_Outras_saidas.getText());
 
 // Atribua os valores aos campos do objeto fluxodecaixa
-fluxodecaixa.setData(data);
-fluxodecaixa.setSaldo_anterior(saldo_anterior);
-fluxodecaixa.setDinheiro(dinheiro);
-fluxodecaixa.setCartao(cartao);
-fluxodecaixa.setOutros_entradas(outras_entradas);
-fluxodecaixa.setFornecedores(fornecedores);
-fluxodecaixa.setImpostos(impostos);
-fluxodecaixa.setContas(contas);
-fluxodecaixa.setManuntencoes(manutencoes);
-fluxodecaixa.setParcela_equipamento(parcela_equipamento);
-fluxodecaixa.setDespesa_bancaria(despesa_bancaria);
-fluxodecaixa.setSalario_funcionario(salario_funcionario);
-fluxodecaixa.setProlabore(prolabore);
-fluxodecaixa.setOutras_saidas(outras_saidas);
+			SimpleDateFormat converterdata = new SimpleDateFormat("yyyy/MM/dd");
+			fluxodecaixa.setData(converterdata.format(dt_Data.getDate()));
+			fluxodecaixa.setSaldo_anterior(saldo_anterior);
+			fluxodecaixa.setDinheiro(dinheiro);
+			fluxodecaixa.setCartao(cartao);
+			fluxodecaixa.setOutros_entradas(outras_entradas);
+			fluxodecaixa.setFornecedores(fornecedores);
+			fluxodecaixa.setImpostos(impostos);
+			fluxodecaixa.setContas(contas);
+			fluxodecaixa.setManuntencoes(manutencoes);
+			fluxodecaixa.setParcela_equipamento(parcela_equipamento);
+			fluxodecaixa.setDespesa_bancaria(despesa_bancaria);
+			fluxodecaixa.setSalario_funcionario(salario_funcionario);
+			fluxodecaixa.setProlabore(prolabore);
+			fluxodecaixa.setOutras_saidas(outras_saidas);
 
 					
-				if( tf_Data.getText().equals("")
+				if( dt_Data.getAccessibleContext().equals("")
 				||	tf_Saldo_anterior.getText().equals("")
 				|| tf_Dinheiro.getText().equals("")
 				|| tf_Cartao.getText().equals("")
@@ -241,18 +257,16 @@ fluxodecaixa.setOutras_saidas(outras_saidas);
 		lblNewLabel_15.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_15.setForeground(Color.WHITE);
 		lblNewLabel_15.setBounds(619, 487, 88, 13);
+		
 		contentPane.add(lblNewLabel_15);
 		
 		tf_Saldo_Atual = new JTextField();
 		tf_Saldo_Atual.setBounds(611, 510, 96, 19);
+		tf_Saldo_Atual.setEditable(false);
 		contentPane.add(tf_Saldo_Atual);
 		tf_Saldo_Atual.setColumns(10);
 		
-		JLabel lblNewLabel_16 = new JLabel("Data");
-		lblNewLabel_16.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblNewLabel_16.setForeground(Color.white);
-		lblNewLabel_16.setBounds(64, 57, 45, 13);
-		contentPane.add(lblNewLabel_16);
+		
 		
 		JLabel lblNewLabel_21 = new JLabel("Cod");
 		lblNewLabel_21.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -277,12 +291,42 @@ fluxodecaixa.setOutras_saidas(outras_saidas);
 		lblNewLabel_22.setBounds(99, 468, 107, 13);
 		contentPane.add(lblNewLabel_22);
 		
-		tf_Data = new JTextField();
-		tf_Data.setBounds(119, 56, 115, 19);
-		contentPane.add(tf_Data);
-		tf_Data.setColumns(10);
+		
+		
 		
 		JButton btn_Buscar = new JButton("Buscar");
+		btn_Calculo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				fluxodecaixa.setCod(Integer.parseInt(tf_Cod.getText()));
+				fluxodecaixadao.Buscar_fluxo(fluxodecaixa);
+				tf_Cartao.setText(Double.toString(fluxodecaixa.getCartao()));
+				tf_Contas.setText(Double.toString(fluxodecaixa.getContas()));
+				tf_Despesa_bancaria.setText(Double.toString(fluxodecaixa.getDespesa_bancaria()));
+				tf_Dinheiro.setText(Double.toString(fluxodecaixa.getDinheiro()));
+				tf_Fornecedores.setText(Double.toString(fluxodecaixa.getFornecedores()));
+				tf_Impostos.setText(Double.toString(fluxodecaixa.getImpostos()));
+				tf_Outras_entradas.setText(Double.toString(fluxodecaixa.getOutros_entradas()));
+				tf_Outras_saidas.setText(Double.toString(fluxodecaixa.getOutras_saidas()));
+				tf_Parcela_equipamento.setText(Double.toString(fluxodecaixa.getParcela_equipamento()));
+				tf_Salario_funcionario.setText(Double.toString(fluxodecaixa.getSalario_funcionario()));
+				tf_Saldo_Atual.setText(Double.toString(fluxodecaixa.getSaldo_atual()));
+				tf_Saldo_anterior.setText(Double.toString(fluxodecaixa.getSaldo_anterior()));
+				tf_Saldo_dia.setText(Double.toString(fluxodecaixa.getSaldo_do_dia()));
+				tf_Total_entradas.setText(Double.toString(fluxodecaixa.getTotal_entrada()));
+				tf_Total_saidas.setText(Double.toString(fluxodecaixa.getTotal_saidas()));
+				tf_prolabore.setText(Double.toString(fluxodecaixa.getProlabore()));
+				SimpleDateFormat formatorecebido = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				SimpleDateFormat formatoexibicao = new SimpleDateFormat("d'de'MMM'de'y");
+				Date dataformatada = null;
+				try {
+					dataformatada = (Date) formatorecebido.parse(fluxodecaixa.getData());
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+				formatoexibicao.format(dataformatada);
+				dt_Data.setDate(dataformatada);
+			}
+		});
 		btn_Buscar.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btn_Buscar.setBounds(509, 413, 85, 21);
 		contentPane.add(btn_Buscar);
@@ -371,6 +415,7 @@ fluxodecaixa.setOutras_saidas(outras_saidas);
 		
 		tf_Total_saidas = new JTextField();
 		tf_Total_saidas.setBounds(134, 129, 127, 19);
+		tf_Total_saidas.setEditable(false);
 		panel_2.add(tf_Total_saidas);
 		tf_Total_saidas.setColumns(10);
 		
@@ -382,6 +427,7 @@ fluxodecaixa.setOutras_saidas(outras_saidas);
 		
 		tf_Saldo_dia = new JTextField();
 		tf_Saldo_dia.setBounds(418, 129, 96, 19);
+		tf_Saldo_dia.setEditable(false);
 		panel_2.add(tf_Saldo_dia);
 		tf_Saldo_dia.setColumns(10);
 		
@@ -393,6 +439,7 @@ fluxodecaixa.setOutras_saidas(outras_saidas);
 		
 		tf_Total_entradas = new JTextField();
 		tf_Total_entradas.setBounds(300, 129, 86, 20);
+		tf_Total_entradas.setEditable(false);
 		panel_2.add(tf_Total_entradas);
 		tf_Total_entradas.setColumns(10);
 
