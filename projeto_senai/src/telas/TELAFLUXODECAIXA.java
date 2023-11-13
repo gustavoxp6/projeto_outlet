@@ -16,13 +16,11 @@ import javax.swing.ImageIcon;
 import javax.swing.border.MatteBorder;
 
 import com.toedter.calendar.JDateChooser;
-
-
+import java.util.Date;
 import javax.swing.UIManager;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -84,7 +82,7 @@ public class TELAFLUXODECAIXA extends JFrame {
 
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+		Date hoje = new Date();
 		JLabel lblNewLabel_4 = new JLabel("Fornecedores");
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_4.setForeground(Color.WHITE);
@@ -193,7 +191,7 @@ public class TELAFLUXODECAIXA extends JFrame {
 		JDateChooser dt_Data = new JDateChooser();
 		dt_Data.setBounds(119, 56, 135, 19);
 		contentPane.add(dt_Data);
-		
+		dt_Data.setDate(hoje);
 		JButton btn_Calculo = new JButton("Calcular");
 		btn_Calculo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -212,8 +210,10 @@ public class TELAFLUXODECAIXA extends JFrame {
 			int outras_saidas = tf_Outras_saidas.getText().isEmpty() ? 0 : Integer.parseInt(tf_Outras_saidas.getText());
 
 // Atribua os valores aos campos do objeto fluxodecaixa
+			
+			
 			SimpleDateFormat converterdata = new SimpleDateFormat("yyyy/MM/dd");
-			fluxodecaixa.setData(converterdata.format(dt_Data.getDate()));
+			fluxodecaixa.setData(converterdata.format(hoje));
 			fluxodecaixa.setSaldo_anterior(saldo_anterior);
 			fluxodecaixa.setDinheiro(dinheiro);
 			fluxodecaixa.setCartao(cartao);
@@ -316,9 +316,10 @@ public class TELAFLUXODECAIXA extends JFrame {
 				tf_Total_entradas.setText(Double.toString(fluxodecaixa.getTotal_entrada()));
 				tf_Total_saidas.setText(Double.toString(fluxodecaixa.getTotal_saidas()));
 				tf_prolabore.setText(Double.toString(fluxodecaixa.getProlabore()));
-				SimpleDateFormat formatorecebido = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				SimpleDateFormat formatorecebido = new SimpleDateFormat("yyyy-MM-dd");
 				SimpleDateFormat formatoexibicao = new SimpleDateFormat("d'de'MMM'de'y");
 				Date dataformatada = null;
+				
 				try {
 					dataformatada = (Date) formatorecebido.parse(fluxodecaixa.getData());
 				} catch (ParseException e1) {
